@@ -4,6 +4,7 @@ const scss = require('gulp-sass')(require('sass'));
 const browserSync = require('browser-sync').create();
 const clean = require('gulp-clean');
 const imagemin = require('gulp-imagemin');
+// const ttf2woff2 = require('gulp-ttf2woff2');
 
 function styles() {
   return src('./app/scss/main.scss')
@@ -14,7 +15,8 @@ function styles() {
 
 function watchProject() {
   watch(['app/scss/**/*.scss'], styles);
-  watch(['app/**/*.html']).on('change', browserSync.reload);
+  watch(['app/**/*.html', 'app/js/**/*', 'app/fonts/**/*'])
+    .on('change', browserSync.reload);
 }
 
 function initBrowserSync() {
@@ -32,9 +34,10 @@ function build() {
     [
       "./app/css/main.css",
       "./app/js/main.js",
-      "./app/**/*.html"
+      "./app/**/*.html",
+      "./app/fonts/**/*"
     ],
-    { base: "app" }
+    { base: "app", encoding: false }
   )
     .pipe(dest('dist'));
 }
@@ -56,6 +59,15 @@ function minimizeImages() {
     ]))
     .pipe(dest('dist/img'));
 }
+
+// function optiFonts() {
+//   return src(
+//     ['./app/fonts/**/*.ttf'],
+//     { base: './app/fonts', encoding: false }
+//   )
+//     .pipe(ttf2woff2())
+//     .pipe(dest('./app/fonts'));
+// }
 
 exports.styles = styles;
 exports.watchProject = watchProject;
