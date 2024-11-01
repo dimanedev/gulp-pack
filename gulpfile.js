@@ -1,7 +1,8 @@
-const { src, dest, watch, parallel } = require('gulp');
+const { src, dest, watch, parallel, series } = require('gulp');
 
 const scss = require('gulp-sass')(require('sass'));
 const browserSync = require('browser-sync').create();
+const clean = require('gulp-clean');
 
 function styles() {
   return src('./app/scss/main.scss')
@@ -21,7 +22,24 @@ function initBrowserSync() {
   });
 }
 
+function cleanDist() {
+  return src("dist").pipe(clean());
+}
+
+function build() {
+  return src(
+    [
+      "./app/css/main.css",
+      "./app/js/main.js",
+      "./app/**/*.html"
+    ],
+    { base: "app" }
+  )
+    .pipe(dest('dist'));
+}
+
 exports.styles = styles;
 exports.watchProject = watchProject;
+exports.build = series(cleanDist, build);
 
 exports.default = parallel(styles, initBrowserSync, watchProject);
