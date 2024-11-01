@@ -4,6 +4,7 @@ const scss = require('gulp-sass')(require('sass'));
 const browserSync = require('browser-sync').create();
 const clean = require('gulp-clean');
 const imagemin = require('gulp-imagemin');
+const fileinclude = require('gulp-file-include');
 // const ttf2woff2 = require('gulp-ttf2woff2');
 
 function styles() {
@@ -13,9 +14,20 @@ function styles() {
     .pipe(browserSync.stream());
 }
 
+function includeHTML() {
+  return src(['./app/pages/*.html'])
+    .pipe(fileinclude({
+      prefix: "@@",
+      basepath: "@file"
+    }))
+    .pipe(dest("./app"));
+}
+
 function watchProject() {
   watch(['app/scss/**/*.scss'], styles);
-  watch(['app/**/*.html', 'app/js/**/*', 'app/fonts/**/*'])
+  watch(['app/pages/**/*', 'app/components/**/*'])
+    .on('change', includeHTML);
+  watch(['app/*.html', 'app/js/**/*', 'app/fonts/**/*'])
     .on('change', browserSync.reload);
 }
 
@@ -73,4 +85,4 @@ exports.styles = styles;
 exports.watchProject = watchProject;
 exports.build = series(cleanDist, build, minimizeImages);
 
-exports.default = parallel(styles, initBrowserSync, watchProject);
+exports.default = parallel(includeHTML, styles, initBrowserSync, watchProject);
